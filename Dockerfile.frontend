@@ -1,0 +1,24 @@
+# First Stage: Build
+FROM node:22-alpine AS build
+WORKDIR /app/frontend
+
+# Install dependencies
+COPY frontend/package*.json ./
+RUN npm install --production
+
+# Copy source code and build
+COPY frontend/ ./
+RUN npm run build
+
+# Second Stage: Serve Static Files
+#FROM node:22-alpine AS runtime
+#WORKDIR /app/frontend
+
+# Copy only the build output from the previous stage
+# COPY --from=build /app/frontend/build /app/frontend/build
+
+# Optional: Install a lightweight HTTP server (e.g., serve) if standalone testing is needed
+# RUN npm install -g serve
+# CMD ["serve", "-s", "build"]
+
+# This stage's CMD isn't set since it will be served by Express in the backend

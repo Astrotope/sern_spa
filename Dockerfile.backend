@@ -1,0 +1,25 @@
+# First Stage: Build Dependencies
+FROM node:22-alpine AS build
+WORKDIR /app/backend
+
+# Install dependencies
+COPY backend/package*.json ./
+RUN npm install --production
+
+# Copy backend source code
+COPY backend/ ./
+
+# Second Stage: Runtime
+FROM node:22-alpine AS runtime
+WORKDIR /app/backend
+
+# Copy only the dependencies and compiled source code from the build stage
+COPY --from=build /app/backend /app/backend
+
+# Copy the built frontend assets from the frontend image
+COPY --from=build /app/frontend/build /app/backend/public
+
+# Expose port and set command for Express
+EXPOSE 5000
+CMD ["node", "server.js"]
+
